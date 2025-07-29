@@ -1,0 +1,41 @@
+@startuml
+participant "Data Sources" as DS
+participant "Data Ingestion\n(Columnar/Aligned Storage)" as DI
+participant "SIMD-Optimized\nTokenization" as TOK
+participant "Cache-Aligned\nEmbedding Generation" as EMB
+participant "Aligned Data\nBatching" as BATCH
+participant "Model Training" as TRAIN
+participant "Inference Serving" as INF
+participant "Telemetry &\nObservability" as TELE
+
+== Data Pipeline Flow ==
+
+DS -> DI: Stream data\n(columnar/Apache Arrow)
+activate DI
+DI -> TOK: Provide aligned,\nmemory-efficient batches
+deactivate DI
+activate TOK
+TOK -> EMB: SIMD vectorized tokens\naligned in memory
+deactivate TOK
+activate EMB
+EMB -> BATCH: Embeddings stored\nin cache-aligned tensors
+deactivate EMB
+activate BATCH
+
+== Training Sequence ==
+BATCH -> TRAIN: Provide aligned training batches\nfor LLM & small models
+activate TRAIN
+TRAIN --> TELE: Emit training metrics\n(cache usage, throughput)
+deactivate TRAIN
+
+== Inference Sequence ==
+BATCH -> INF: Provide aligned batches\nfor inference
+activate INF
+INF --> TELE: Emit inference metrics\n(latency, utilization)
+deactivate INF
+
+activate TELE
+TELE --> DI: Optimization feedback\n(adjust alignment,\nbatch size tuning)
+deactivate TELE
+
+@enduml
