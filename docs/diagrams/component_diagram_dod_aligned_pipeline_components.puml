@@ -1,0 +1,58 @@
+@startuml
+title Component Diagram: Data-Oriented Design (DOD) for AI Pipeline
+
+package "Data Source Layer" {
+  [Real-time Streams]
+  [Batch Data Stores]
+}
+
+package "Data Ingestion & Storage Layer" {
+  component "Columnar Storage\n(Apache Arrow/Parquet)" as ColumnStore
+  component "Streaming Platform\n(Kafka/Arrow Flight)" as StreamPlatform
+}
+
+package "Processing & Vectorization Layer" {
+  component "SIMD Tokenization Engine" as SIMDToken
+  component "Cache-Aligned Embedding Store" as EmbeddingStore
+  component "Aligned Data Batch Manager" as BatchManager
+}
+
+package "AI Model Layer" {
+  component "Large Language Models (LLMs)" as LLM
+  component "Small/Specialized Models" as SmallModels
+}
+
+package "Serving & Inference Layer" {
+  component "Optimized Inference Server" as InfServer
+}
+
+package "Monitoring & Optimization Layer" {
+  component "Telemetry & Observability" as Telemetry
+  component "Performance Profiler" as Profiler
+}
+
+[Real-time Streams] --> StreamPlatform
+[Batch Data Stores] --> ColumnStore
+
+StreamPlatform --> SIMDToken: Aligned Streams
+ColumnStore --> SIMDToken: Aligned Batches
+
+SIMDToken --> EmbeddingStore: Tokenized Data
+EmbeddingStore --> BatchManager: Embeddings
+
+BatchManager --> LLM: Training/Inference Batches
+BatchManager --> SmallModels: Training/Inference Batches
+
+LLM --> InfServer: Deploy Models
+SmallModels --> InfServer: Deploy Models
+
+InfServer --> Telemetry: Inference Metrics
+LLM --> Telemetry: Training Metrics
+SmallModels --> Telemetry: Training Metrics
+
+Telemetry --> Profiler: Provide Data
+Profiler --> SIMDToken: Optimization Feedback
+Profiler --> EmbeddingStore: Optimization Feedback
+Profiler --> BatchManager: Optimization Feedback
+
+@enduml

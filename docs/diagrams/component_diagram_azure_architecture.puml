@@ -1,0 +1,29 @@
+@startuml
+title Azure Architecture: DOD & Branch Prediction Analogy
+
+package "CPU and Local L1 Cache (Azure VM/Containers)" {
+    component "App Logic & Local Cache" as VM
+}
+
+package "L2/L3 Cache (Azure Redis)" {
+    component "Redis Cache" as Redis
+}
+
+package "RAM (Azure SQL Server)" {
+    component "SQL Server (Columnstore/In-memory tables)" as SQLServer
+}
+
+package "Persistent Storage (Azure Data Lake/Blob)" {
+    component "Azure Blob Storage" as Blob
+}
+
+VM --> Redis : Cache Miss\n(unlikely)
+Redis --> VM : Cache Hit\n(likely, aligned data)
+
+Redis --> SQLServer : Cache Miss\n(unlikely)
+SQLServer --> Redis : Data Load\n(aligned, batch-oriented)
+
+SQLServer --> Blob : Miss/Error\n(rare path, slowest)
+Blob --> SQLServer : Cold Data\n(batch-load, structured)
+
+@enduml

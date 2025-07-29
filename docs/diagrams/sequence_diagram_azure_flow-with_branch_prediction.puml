@@ -1,0 +1,36 @@
+@startuml
+participant "Client/API" as Client
+participant "VM Container\n(L1 Cache)" as VM
+participant "Azure Redis\n(L2/L3 Cache)" as Redis
+participant "Azure SQL Server\n(RAM equivalent)" as SQL
+participant "Azure Blob Storage\n(Persistent Storage)" as Blob
+
+Client -> VM : Request Data
+activate VM
+VM --> Client : Response (L1 cache hit) [[likely]]
+deactivate VM
+
+alt L1 Cache Miss (unlikely)
+  VM -> Redis : Lookup Data (L2 cache)
+  activate Redis
+  Redis --> VM : Response (cache hit) [[likely]]
+  deactivate Redis
+  VM --> Client : Response
+else Redis Cache Miss (unlikely)
+  Redis -> SQL : Lookup Data
+  activate SQL
+  SQL --> Redis : Response Data (aligned batch)
+  deactivate SQL
+  Redis --> VM : Populate Cache & Respond
+  VM --> Client : Response
+else SQL Miss/Cold Data (rarely)
+  SQL -> Blob : Fetch Cold Data
+  activate Blob
+  Blob --> SQL : Cold Data Load (slowest path)
+  deactivate Blob
+  SQL --> Redis : Load Cold Data (aligned)
+  Redis --> VM : Populate Cache & Respond
+  VM --> Client : Response
+end
+@enduml
+

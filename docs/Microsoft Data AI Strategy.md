@@ -402,66 +402,11 @@ Below are two detailed PlantUML diagrams illustrating how **Data-Oriented Design
 ---
 
 ### ✅ **Component Diagram (DOD-Aligned Pipeline Components):**
-```plantuml
-@startuml
-title Component Diagram: Data-Oriented Design (DOD) for AI Pipeline
 
-package "Data Source Layer" {
-  [Real-time Streams]
-  [Batch Data Stores]
-}
+![Diagram](images/component_diagram_dod_aligned_pipeline_components.png)
 
-package "Data Ingestion & Storage Layer" {
-  component "Columnar Storage\n(Apache Arrow/Parquet)" as ColumnStore
-  component "Streaming Platform\n(Kafka/Arrow Flight)" as StreamPlatform
-}
-
-package "Processing & Vectorization Layer" {
-  component "SIMD Tokenization Engine" as SIMDToken
-  component "Cache-Aligned Embedding Store" as EmbeddingStore
-  component "Aligned Data Batch Manager" as BatchManager
-}
-
-package "AI Model Layer" {
-  component "Large Language Models (LLMs)" as LLM
-  component "Small/Specialized Models" as SmallModels
-}
-
-package "Serving & Inference Layer" {
-  component "Optimized Inference Server" as InfServer
-}
-
-package "Monitoring & Optimization Layer" {
-  component "Telemetry & Observability" as Telemetry
-  component "Performance Profiler" as Profiler
-}
-
-[Real-time Streams] --> StreamPlatform
-[Batch Data Stores] --> ColumnStore
-
-StreamPlatform --> SIMDToken: Aligned Streams
-ColumnStore --> SIMDToken: Aligned Batches
-
-SIMDToken --> EmbeddingStore: Tokenized Data
-EmbeddingStore --> BatchManager: Embeddings
-
-BatchManager --> LLM: Training/Inference Batches
-BatchManager --> SmallModels: Training/Inference Batches
-
-LLM --> InfServer: Deploy Models
-SmallModels --> InfServer: Deploy Models
-
-InfServer --> Telemetry: Inference Metrics
-LLM --> Telemetry: Training Metrics
-SmallModels --> Telemetry: Training Metrics
-
-Telemetry --> Profiler: Provide Data
-Profiler --> SIMDToken: Optimization Feedback
-Profiler --> EmbeddingStore: Optimization Feedback
-Profiler --> BatchManager: Optimization Feedback
-
-@enduml
-```
+[🔍 View SVG](svg/component_diagram_dod_aligned_pipeline_components.svg)  
+[🧾 View Source (.puml)](diagrams/component_diagram_dod_aligned_pipeline_components.puml)
 
 ---
 
@@ -479,11 +424,7 @@ Profiler --> BatchManager: Optimization Feedback
 
 These diagrams provide a visual framework for incorporating Data-Oriented Design principles effectively into Microsoft's AI and data pipeline strategy, clearly illustrating efficiency, optimization, and scalability benefits.
 
-user
-Are you familiar with the work in this link?  https://johnfarrier.com/branch-prediction-the-definitive-guide-for-high-performance-c/
-
-ChatGPT
-Yes—I’m familiar with John Farrier’s article **“Branch Prediction: The Definitive Guide for High‑Performance C++”**, published about four months ago citeturn0search0. He dives deep into branch prediction mechanics, showing how mispredictions can seriously impact performance in latency-sensitive systems and offering clear techniques for writing branch-friendly C++ code.
+John Farrier’s article **“Branch Prediction: The Definitive Guide for High‑Performance C++”**, published about four months ago, dives deep into branch prediction mechanics, showing how mispredictions can seriously impact performance in latency-sensitive systems and offering clear techniques for writing branch-friendly C++ code.
 
 ### 🎯 Key Takeaways from Farrier’s Guide:
 - **Why branch prediction matters**: Modern CPUs heavily rely on predicting `if/else` decisions to maintain pipeline throughput. Mis-predictions can stall pipelines for 10–20 cycles—or more—on deep pipelines citeturn0search0turn0search20.
@@ -547,10 +488,7 @@ Yes—Farrier’s guide is a powerful complement to DOD architecture. By applyin
 
 Together, DOD and Farrier’s techniques form a compelling strategy for building high-throughput, low-latency AI data pipelines. Want to explore how to integrate these into a full production architecture?
 
-user
-Taking these concepts and considering Azure services offered like VMs or containers as the CPU and their memory ad L1 cache and something kike redis as L2 or L3 cache and MS Sql Server as RAM, how can I represent these in the same concepts as DOD and branch prediction?
-
-ChatGPT
+## Applying Branch Prediction and DoD to Data AI Strategy
 Applying the concepts of **Data-Oriented Design (DOD)** and **branch prediction** metaphorically to a cloud architecture using Azure services—such as Azure Virtual Machines (VMs), Azure Container Instances (ACI), Azure Redis Cache, and Azure SQL Server—can offer insightful architectural analogies. 
 
 This analogy allows you to design your cloud infrastructure to minimize latency, optimize resource use, and maintain predictable performance—similar to how you’d optimize CPU operations with branch prediction and DOD for memory/cache efficiency.
@@ -630,78 +568,20 @@ Explicitly separate these paths in your code or architecture to maximize predict
 ## 🚦 **Azure Architecture Visualization (DOD & Branch Prediction analogy):**
 
 ### ✅ **Component Diagram (Azure Architecture):**
-```plantuml
-@startuml
-title Azure Architecture: DOD & Branch Prediction Analogy
 
-package "CPU and Local L1 Cache (Azure VM/Containers)" {
-    component "App Logic & Local Cache" as VM
-}
+![Diagram](images/component_diagram_azure_architecture.png)
 
-package "L2/L3 Cache (Azure Redis)" {
-    component "Redis Cache" as Redis
-}
-
-package "RAM (Azure SQL Server)" {
-    component "SQL Server (Columnstore/In-memory tables)" as SQLServer
-}
-
-package "Persistent Storage (Azure Data Lake/Blob)" {
-    component "Azure Blob Storage" as Blob
-}
-
-VM --> Redis : Cache Miss\n(unlikely)
-Redis --> VM : Cache Hit\n(likely, aligned data)
-
-Redis --> SQLServer : Cache Miss\n(unlikely)
-SQLServer --> Redis : Data Load\n(aligned, batch-oriented)
-
-SQLServer --> Blob : Miss/Error\n(rare path, slowest)
-Blob --> SQLServer : Cold Data\n(batch-load, structured)
-
-@enduml
-```
+[🔍 View SVG](svg/component_diagram_azure_architecture.svg)  
+[🧾 View Source (.puml)](diagrams/component_diagram_azure_architecture.puml)
 
 ---
 
 ### ✅ **Sequence Diagram (Azure Flow with Branch Prediction):**
-```plantuml
-@startuml
-participant "Client/API" as Client
-participant "VM Container\n(L1 Cache)" as VM
-participant "Azure Redis\n(L2/L3 Cache)" as Redis
-participant "Azure SQL Server\n(RAM equivalent)" as SQL
-participant "Azure Blob Storage\n(Persistent Storage)" as Blob
 
-Client -> VM : Request Data
-activate VM
-VM --> Client : Response (L1 cache hit) [[likely]]
-deactivate VM
+![Diagram](images/sequence_diagram_azure_flow-with_branch_prediction.png)
 
-alt L1 Cache Miss (unlikely)
-  VM -> Redis : Lookup Data (L2 cache)
-  activate Redis
-  Redis --> VM : Response (cache hit) [[likely]]
-  deactivate Redis
-  VM --> Client : Response
-else Redis Cache Miss (unlikely)
-  Redis -> SQL : Lookup Data
-  activate SQL
-  SQL --> Redis : Response Data (aligned batch)
-  deactivate SQL
-  Redis --> VM : Populate Cache & Respond
-  VM --> Client : Response
-else SQL Miss/Cold Data (rarely)
-  SQL -> Blob : Fetch Cold Data
-  activate Blob
-  Blob --> SQL : Cold Data Load (slowest path)
-  deactivate Blob
-  SQL --> Redis : Load Cold Data (aligned)
-  Redis --> VM : Populate Cache & Respond
-  VM --> Client : Response
-end
-@enduml
-```
+[🔍 View SVG](svg/sequence_diagram_azure_flow-with_branch_prediction.svg)  
+[🧾 View Source (.puml)](diagrams/sequence_diagram_azure_flow-with_branch_prediction.puml)
 
 ---
 
